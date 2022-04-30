@@ -1,0 +1,48 @@
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+
+
+<script>
+    const clientId = 'mqtt_js' + Math.random().toString(16).substr(2, 8)
+
+    const host = 'ws://broker.emqx.io:8083/mqtt'
+
+    const options = {
+        clientId: clientId,
+    }
+
+    console.log('connecting mqtt client')
+
+    const client = mqtt.connect(host, options)
+
+
+    client.on('error', (err) => {
+        console.log('Connection error: ', err)
+        client.end()
+    })
+
+    client.on('reconnect', () => {
+        console.log('Reconnecting...')
+    })
+
+
+    client.on('connect', () => {
+        console.log('Client connected:' + clientId)
+        client.subscribe('humidity', {
+            qos: 0
+        })
+    })
+
+
+    client.on('message', (topic, message) => {
+        console.log('Received Message: ' + message.toString() + '\nOn topic: ' + topic)
+
+        document.getElementById("value").innerHTML = message.toString() + '%'
+
+    })
+
+
+    client.on('close', () => {
+        console.log(clientId + ' disconnected')
+    })
+</script>
